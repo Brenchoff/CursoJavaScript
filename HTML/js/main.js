@@ -1,78 +1,300 @@
-function bienvenidaAlumno() {
-    let alumno = prompt("Bienvenid@ a Cadi Pilates, ingresá tu nombre para darte una mejor atención");
-   alert("Bienvenid@ " + alumno + " comencemos!")
+const arrayClasesAgendadas = [];
+const arrayClasesDisponibles = ["Lunes 17hs", "Lunes 18hs", "Martes 18hs", "Martes 20hs", "Jueves 20hs", "Viernes 18hs", "Viernes 20hs"];
+const AbonosMensuales = [
+    { id: 1, nombre: "4 clases mensuales", precio: 35000, cantidad: 4 },
+    { id: 2, nombre: "8 clases mensuales", precio: 50000, cantidad: 8 },
+    { id: 3, nombre: "12 clases mensuales", precio: 75000, cantidad: 12 },
+    { id: 4, nombre: "Clases privadas", precio: 30000, cantidad: 1 }
+];
+
+
+let CarritoAbonosMensuales = JSON.parse(localStorage.getItem("CarritoAbonosMensuales")) || [];
+let ClasesAgendadas = JSON.parse(localStorage.getItem("ClasesAgendadas")) || [];
+
+
+
+
+
+
+function mostrarMenu() {
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.innerHTML = '';
+
+
+    const buttonComprarAbono = document.createElement("button");
+    buttonComprarAbono.innerText = "Comprar abono mensual";
+    buttonComprarAbono.onclick = mostrarAbonos;
+
+
+    const buttonVerAbonos = document.createElement("button");
+    buttonVerAbonos.innerText = "Ver abono comprado";
+    buttonVerAbonos.onclick = verCarritoAbonosMensuales;
+
+
+    const buttonAgendarClase = document.createElement("button");
+    buttonAgendarClase.innerText = "Ver horarios disponibles y agendar una clase";
+    buttonAgendarClase.onclick = mostrarAgenda;
+
+
+    const buttonVerClasesAgendadas = document.createElement("button");
+    buttonVerClasesAgendadas.innerText = "Ver clases agendadas";
+    buttonVerClasesAgendadas.onclick = verClasesAgendadas;
+
+
+    const buttonCancelarClase = document.createElement("button");
+    buttonCancelarClase.innerText = "Cancelar una clase agendada";
+    buttonCancelarClase.onclick = verClasesAgendadas;
+
+
+    const buttonConfirmarCompra = document.createElement("button");
+    buttonConfirmarCompra.innerText = "Confirmar compra de abono";
+    buttonConfirmarCompra.onclick = confirmarCompra;
+
+
+
+
+    menuContainer.appendChild(buttonComprarAbono);
+    menuContainer.appendChild(buttonVerAbonos);
+    menuContainer.appendChild(buttonAgendarClase);
+    menuContainer.appendChild(buttonVerClasesAgendadas);
+    menuContainer.appendChild(buttonCancelarClase);
+    menuContainer.appendChild(buttonConfirmarCompra);
+}
+function mostrarAbonos() {
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.innerHTML = '';
+
+
+    AbonosMensuales.forEach(abono => {
+        const button = document.createElement("button");
+        button.innerText = `${abono.nombre} ($${abono.precio})`;
+        button.onclick = () => seleccionarAbono(abono);
+        menuContainer.appendChild(button);
+    });
+
+
+   
+    const buttonMenu = document.createElement("button");
+    buttonMenu.innerText = "Volver al Menú";
+    buttonMenu.onclick = mostrarMenu;
+    menuContainer.appendChild(buttonMenu);
+    buttonMenu.addEventListener('mouseover', () => {
+        buttonMenu.style.transform = 'scale(1.2)';
+        buttonMenu.style.backgroundColor = 'antiquewhite';
+    });
+
+
+    buttonMenu.addEventListener('mouseout', () => {
+        buttonMenu.style.transform = 'scale(1)';
+        buttonMenu.style.backgroundColor = '';
+    });
 }
 
-bienvenidaAlumno();
 
-for (let i = 1; i <= 3; i++) {
-    
-    let usuario = prompt(" Por favor ingresá tu usuario").toLowerCase(); 
+function seleccionarAbono(abono) {
+    CarritoAbonosMensuales.push(abono);
+    localStorage.setItem("CarritoAbonosMensuales", JSON.stringify(CarritoAbonosMensuales));
+    alert(`Elegiste el abono: ${abono.nombre}`);
+    mostrarAgenda();
+}
 
-    let clave = prompt("Ingresá tu clave").toLowerCase(); 
 
-    if (usuario === "brendagenchoff" && clave === "bren123") {
-        alert("Ingresaste a la plataforma de turnos de Cadi Pilates");
-        break;
+function mostrarAgenda() {
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.innerHTML = '';
+
+
+    arrayClasesDisponibles.forEach(horario => {
+        const button = document.createElement("button");
+        button.innerText = `Agendar clase el ${horario}`;
+        button.onclick = () => agendarClase(horario);
+        menuContainer.appendChild(button);
+    });
+
+
+   
+    const buttonMenu = document.createElement("button");
+    buttonMenu.innerText = "Volver al Menú";
+    buttonMenu.onclick = mostrarMenu;
+    menuContainer.appendChild(buttonMenu);
+    buttonMenu.addEventListener('mouseover', () => {
+        buttonMenu.style.transform = 'scale(1.2)';
+        buttonMenu.style.backgroundColor = 'antiquewhite';
+    });
+
+
+    buttonMenu.addEventListener('mouseout', () => {
+        buttonMenu.style.transform = 'scale(1)';
+        buttonMenu.style.backgroundColor = '';
+    });
+}
+
+
+function agendarClase(horario) {
+    if (CarritoAbonosMensuales.length === 0) {
+        alert("Para agendar una nueva clase por favor comprá un abono mensual. Muchas gracias");
+        return;
+    }
+    if (ClasesAgendadas.includes(horario)) {
+        alert("Ya tienes una clase agendada para este horario.");
     } else {
-        alert("Credenciales inválidas");
-        if (i === 3) {
-            alert("Tu cuenta se encuentra bloqueada, por favor ponete en contacto para reactivarla");
-        };
+        ClasesAgendadas.push(horario);
+        localStorage.setItem("ClasesAgendadas", JSON.stringify(ClasesAgendadas));
+        alert(`Clase agendada el ${horario}`);
+    }
+}
+
+
+function verCarritoAbonosMensuales() {
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.innerHTML = '';
+
+
+    if (CarritoAbonosMensuales.length === 0) {
+        alert("No tienes abonos comprados.");
+        mostrarMenu();
+        return;
+    }
+
+
+    CarritoAbonosMensuales.forEach((abono) => {
+        const button = document.createElement("button");
+        button.innerText = `${abono.nombre} ($${abono.precio})`;
+        menuContainer.appendChild(button);
+    });
+
+
+   
+    const buttonMenu = document.createElement("button");
+    buttonMenu.innerText = "Volver al Menú";
+    buttonMenu.onclick = mostrarMenu;
+    menuContainer.appendChild(buttonMenu);
+    buttonMenu.addEventListener('mouseover', () => {
+        buttonMenu.style.transform = 'scale(1.2)';
+        buttonMenu.style.backgroundColor = 'antiquewhite';
+    });
+
+
+    buttonMenu.addEventListener('mouseout', () => {
+        buttonMenu.style.transform = 'scale(1)';
+        buttonMenu.style.backgroundColor = '';
+    });
+}
+
+
+function verClasesAgendadas() {
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.innerHTML = '';
+
+
+    if (ClasesAgendadas.length === 0) {
+        alert("No tienes clases agendadas.");
+        mostrarMenu();
+        return;
+    }
+
+
+    ClasesAgendadas.forEach((clase, index) => {
+        const button = document.createElement("button");
+        button.innerText = `Clase agendada: ${clase}`;
+        button.onclick = () => cancelarClase(index);
+        menuContainer.appendChild(button);
+    });
+
+
+   
+    const buttonMenu = document.createElement("button");
+    buttonMenu.innerText = "Volver al Menú";
+    buttonMenu.onclick = mostrarMenu;
+    menuContainer.appendChild(buttonMenu);
+    buttonMenu.addEventListener('mouseover', () => {
+        buttonMenu.style.transform = 'scale(1.2)';
+        buttonMenu.style.backgroundColor = 'antiquewhite';
+    });
+
+
+    buttonMenu.addEventListener('mouseout', () => {
+        buttonMenu.style.transform = 'scale(1)';
+        buttonMenu.style.backgroundColor = '';
+    });
+}
+
+
+function cancelarClase(index) {
+    ClasesAgendadas.splice(index, 1);
+    localStorage.setItem("ClasesAgendadas", JSON.stringify(ClasesAgendadas));
+    alert("Clase cancelada.");
+    verClasesAgendadas();
+}
+
+
+function confirmarCompra() {
+    if (CarritoAbonosMensuales.length === 0) {
+        alert("No tienes abonos para comprar.");
+        return;
+    }
+
+
+    let mensaje = "¿Confirmar la compra de los siguientes abonos?\n";
+    CarritoAbonosMensuales.forEach(abono => {
+        mensaje += `${abono.nombre} ($${abono.precio})\n`;
+    });
+    mensaje += "Recuerda que puedes agendar o modificar tus clases desde la plataforma.";
+
+
+    if (confirm(mensaje)) {
+        mostrarPago(); // Muestra la sección de pago
+    }
+}
+
+
+function mostrarPago() {
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.innerHTML = ''; // Limpiar el contenido
+
+
+    // Mostrar detalles de la compra
+    let detalles = "Abonos Comprados:\n";
+    CarritoAbonosMensuales.forEach(abono => {
+        detalles += `${abono.nombre} ($${abono.precio})\n`;
+    });
+
+
+    // Mostrar detalles de pago
+    const detallesPago = document.createElement("div");
+    detallesPago.innerText = detalles; // Usar un div para mostrar el texto
+
+
+    const finalizarPago = document.createElement("button");
+    finalizarPago.innerText = "Finalizar Pago";
+    finalizarPago.style.cursor = "pointer"; // Cambia el cursor para indicar que es clickeable
+    finalizarPago.onclick = function() {
+        alert("Pago completado. ¡Gracias!");
+        CarritoAbonosMensuales = []; // Reinicia el carrito
+        localStorage.removeItem("CarritoAbonosMensuales"); // Elimina los datos del localStorage
+        mostrarMenu(); // Vuelve al menú principal
     };
-};
-
-const arrayClasesAgendadas = ["Lunes 17hs" , "Martes 18hs" , "Jueves 20hs", "Viernes 20hs"];
-const arrayClasesDisponibles = ["Lunes 18hs", "Martes 20hs", "Viernes 18hs"]
 
 
-let opcion;
+    const volverAlMenu = document.createElement("button");
+    volverAlMenu.innerText = "Volver al Menú";
+    volverAlMenu.style.cursor = "pointer"; // Cambia el cursor para indicar que es clickeable
+    volverAlMenu.onclick = mostrarMenu;
 
 
-do {
-    opcion = prompt("Por favor ingresá una de las siguientes opciones: 1 para ver tus clases agendadas, 2 para cancelar una clase agendada, 3 ver horarios disponibles y recuperar una clase anterior, para salir presioná 0. Muchas gracias!");
-
-    switch (opcion) {
-        case "0":
-            alert("Gracias por tu visita! Si no encontraste la opción que necesitas contactanos por Whatsapp para poder ayudarte. Muchas gracias!");
-            break;
-        case "1":
-            if (arrayClasesAgendadas.length === 0) {
-                alert("No tienes clases agendadas.");
-            } else {
-                alert("Estas son tus clases agendadas:\n" + arrayClasesAgendadas.join("\n"));
-            }
-                break;
-        case "2":
-            let diaHorario = prompt("Por favor, indicanos el día y el horario de la clase que necesitas cancelar:");
-            let index = arrayClasesAgendadas.indexOf(diaHorario);
-            if (index !== -1) {
-                arrayClasesAgendadas.splice(index, 1);
-                alert("La clase del " + diaHorario + " ha sido cancelada.");
-            } else {
-                alert("No se encontró la clase agendada para ese día y horario.");
-            }
-            break;
-            case "3":
-                if (arrayClasesDisponibles.length === 0) {
-                    alert("No hay horarios disponibles");
-                } else {
-                    alert("Los horarios disponibles son los siguientes:\n" + arrayClasesDisponibles.join("\n"));
-                    let diaHorarioAgendar = prompt("Indica el día y el horario de la clase que quieres agendar. En caso de no tener horario disponible en el que puedas asistir, por favor contactanos por whatsapp:");
-    
-                    
-                    if (arrayClasesDisponibles.includes(diaHorarioAgendar)) {
-                        arrayClasesAgendadas.push(diaHorarioAgendar); 
-                        alert("Agendaste clase el " + diaHorarioAgendar);
-                    } else {
-                        alert("El horario que ingresaste no está disponible. Por favor, elige uno de los horarios listados.");
-                    }
-                }
-                break;
-            default:
-                alert("Ingresaste una opción inválida. Ingresá por favor una correcta");
-                break;
-        }
-    } while (opcion !== "0");
+    volverAlMenu.addEventListener('mouseover', () => {
+        volverAlMenu.style.transform = 'scale(1.2)';
+        volverAlMenu.style.backgroundColor = 'antiquewhite';
+    });
 
 
+    volverAlMenu.addEventListener('mouseout', () => {
+        volverAlMenu.style.transform = 'scale(1)';
+        volverAlMenu.style.backgroundColor = '';
+    });
+   
+    menuContainer.appendChild(detallesPago);
+    menuContainer.appendChild(finalizarPago);
+    menuContainer.appendChild(volverAlMenu);
+}
+document.addEventListener("DOMContentLoaded", mostrarMenu);

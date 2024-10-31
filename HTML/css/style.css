@@ -1,0 +1,20 @@
+button {
+    display: block;
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+    background-color: bisque;
+}
+
+
+.detalleDeCompra{
+    display: flex;
+    font-size: 16px;
+    background-color: aqua;
+}
+
+.buttonFinalizar{
+    display: flex;
+    font-size: 16px;
+    background-color: red
+}
