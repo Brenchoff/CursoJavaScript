@@ -7,14 +7,3 @@ button {
 }
 
 
-.detalleDeCompra{
-    display: flex;
-    font-size: 16px;
-    background-color: aqua;
-}
-
-.buttonFinalizar{
-    display: flex;
-    font-size: 16px;
-    background-color: red
-}
