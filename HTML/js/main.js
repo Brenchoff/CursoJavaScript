@@ -243,42 +243,41 @@ function confirmarCompra() {
 
 
     if (confirm(mensaje)) {
-        mostrarPago(); // Muestra la sección de pago
+        mostrarPago(); 
     }
 }
 
 
 function mostrarPago() {
     const menuContainer = document.getElementById("menuContainer");
-    menuContainer.innerHTML = ''; // Limpiar el contenido
+    menuContainer.innerHTML = ''; 
 
 
-    // Mostrar detalles de la compra
     let detalles = "Abonos Comprados:\n";
     CarritoAbonosMensuales.forEach(abono => {
         detalles += `${abono.nombre} ($${abono.precio})\n`;
     });
 
 
-    // Mostrar detalles de pago
+    
     const detallesPago = document.createElement("div");
-    detallesPago.innerText = detalles; // Usar un div para mostrar el texto
+    detallesPago.innerText = detalles;
 
 
     const finalizarPago = document.createElement("button");
     finalizarPago.innerText = "Finalizar Pago";
-    finalizarPago.style.cursor = "pointer"; // Cambia el cursor para indicar que es clickeable
+    finalizarPago.style.cursor = "pointer"; 
     finalizarPago.onclick = function() {
         alert("Pago completado. ¡Gracias!");
-        CarritoAbonosMensuales = []; // Reinicia el carrito
-        localStorage.removeItem("CarritoAbonosMensuales"); // Elimina los datos del localStorage
-        mostrarMenu(); // Vuelve al menú principal
+        CarritoAbonosMensuales = []; 
+        localStorage.removeItem("CarritoAbonosMensuales"); 
+        mostrarMenu(); 
     };
 
 
     const volverAlMenu = document.createElement("button");
     volverAlMenu.innerText = "Volver al Menú";
-    volverAlMenu.style.cursor = "pointer"; // Cambia el cursor para indicar que es clickeable
+    volverAlMenu.style.cursor = "pointer"; 
     volverAlMenu.onclick = mostrarMenu;
 
 
