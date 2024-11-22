@@ -1,0 +1,21 @@
+[
+    { "id": 1, 
+    "nombre": "4 clases mensuales",
+     "precio": 35000, 
+     "cantidad": 4 },
+    { "id": 2, 
+    "nombre": "8 clases mensuales",
+     "precio": 50000,
+    "cantidad": 8 },
+
+    { "id": 3,
+      "nombre": "12 clases mensuales",
+       "precio": 75000,
+        "cantidad": 12 },
+
+    { "id": 4,
+      "nombre": "Clases privadas",
+       "precio": 30000, 
+       "cantidad": 1 }
+]
+

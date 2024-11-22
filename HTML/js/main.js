@@ -1,57 +1,38 @@
 const arrayClasesAgendadas = [];
 const arrayClasesDisponibles = ["Lunes 17hs", "Lunes 18hs", "Martes 18hs", "Martes 20hs", "Jueves 20hs", "Viernes 18hs", "Viernes 20hs"];
-const AbonosMensuales = [
-    { id: 1, nombre: "4 clases mensuales", precio: 35000, cantidad: 4 },
-    { id: 2, nombre: "8 clases mensuales", precio: 50000, cantidad: 8 },
-    { id: 3, nombre: "12 clases mensuales", precio: 75000, cantidad: 12 },
-    { id: 4, nombre: "Clases privadas", precio: 30000, cantidad: 1 }
-];
+let abonosMensuales = [];
 
-
-let CarritoAbonosMensuales = JSON.parse(localStorage.getItem("CarritoAbonosMensuales")) || [];
-let ClasesAgendadas = JSON.parse(localStorage.getItem("ClasesAgendadas")) || [];
-
-
-
-
-
+let carritoAbonosMensuales = JSON.parse(localStorage.getItem("carritoAbonosMensuales")) || [];
+let clasesAgendadas = JSON.parse(localStorage.getItem("clasesAgendadas")) || [];
 
 function mostrarMenu() {
     const menuContainer = document.getElementById("menuContainer");
     menuContainer.innerHTML = '';
 
-
-    const buttonComprarAbono = document.createElement("button");
+ 
+    const buttonComprarAbono = document.createElement("button");  
     buttonComprarAbono.innerText = "Comprar abono mensual";
-    buttonComprarAbono.onclick = mostrarAbonos;
-
+    buttonComprarAbono.onclick = cargarAbonos;
 
     const buttonVerAbonos = document.createElement("button");
     buttonVerAbonos.innerText = "Ver abono comprado";
     buttonVerAbonos.onclick = verCarritoAbonosMensuales;
 
-
     const buttonAgendarClase = document.createElement("button");
     buttonAgendarClase.innerText = "Ver horarios disponibles y agendar una clase";
     buttonAgendarClase.onclick = mostrarAgenda;
-
 
     const buttonVerClasesAgendadas = document.createElement("button");
     buttonVerClasesAgendadas.innerText = "Ver clases agendadas";
     buttonVerClasesAgendadas.onclick = verClasesAgendadas;
 
-
     const buttonCancelarClase = document.createElement("button");
     buttonCancelarClase.innerText = "Cancelar una clase agendada";
     buttonCancelarClase.onclick = verClasesAgendadas;
 
-
     const buttonConfirmarCompra = document.createElement("button");
     buttonConfirmarCompra.innerText = "Confirmar compra de abono";
     buttonConfirmarCompra.onclick = confirmarCompra;
-
-
-
 
     menuContainer.appendChild(buttonComprarAbono);
     menuContainer.appendChild(buttonVerAbonos);
@@ -60,111 +41,147 @@ function mostrarMenu() {
     menuContainer.appendChild(buttonCancelarClase);
     menuContainer.appendChild(buttonConfirmarCompra);
 }
+
+function cargarAbonos() {
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.innerHTML = '';
+
+    fetch('data.json')  
+        .then(response => response.json())  
+        .then(data => {
+            abonosMensuales = data;  
+            mostrarAbonos();  
+
+             const buttonMenu = document.createElement("button");
+        buttonMenu.innerText = "Volver al Menú";
+        buttonMenu.onclick = mostrarMenu;
+        menuContainer.appendChild(buttonMenu);
+        buttonMenu.addEventListener('mouseover', () => {
+            buttonMenu.style.transform = 'scale(1.2)';
+            buttonMenu.style.backgroundColor = 'antiquewhite';
+        });
+
+        buttonMenu.addEventListener('mouseout', () => {
+            buttonMenu.style.transform = 'scale(1)';
+            buttonMenu.style.backgroundColor = '';
+        })
+    })
+        .catch(error => {
+            console.error('Error al cargar los abonos:', error);
+            Swal.fire("Hubo un problema al cargar los abonos. Intenta más tarde.");
+        });
+
+        
+}
+
 function mostrarAbonos() {
     const menuContainer = document.getElementById("menuContainer");
     menuContainer.innerHTML = '';
 
-
-    AbonosMensuales.forEach(abono => {
+    abonosMensuales.forEach(abono => {
         const button = document.createElement("button");
         button.innerText = `${abono.nombre} ($${abono.precio})`;
         button.onclick = () => seleccionarAbono(abono);
         menuContainer.appendChild(button);
     });
-
-
-   
-    const buttonMenu = document.createElement("button");
-    buttonMenu.innerText = "Volver al Menú";
-    buttonMenu.onclick = mostrarMenu;
-    menuContainer.appendChild(buttonMenu);
-    buttonMenu.addEventListener('mouseover', () => {
-        buttonMenu.style.transform = 'scale(1.2)';
-        buttonMenu.style.backgroundColor = 'antiquewhite';
-    });
-
-
-    buttonMenu.addEventListener('mouseout', () => {
-        buttonMenu.style.transform = 'scale(1)';
-        buttonMenu.style.backgroundColor = '';
-    });
 }
-
 
 function seleccionarAbono(abono) {
-    CarritoAbonosMensuales.push(abono);
-    localStorage.setItem("CarritoAbonosMensuales", JSON.stringify(CarritoAbonosMensuales));
-    alert(`Elegiste el abono: ${abono.nombre}`);
+    carritoAbonosMensuales.push(abono);
+    localStorage.setItem("carritoAbonosMensuales", JSON.stringify(carritoAbonosMensuales));
+    Swal.fire(`Elegiste el abono: ${abono.nombre}`);
+
+   
     mostrarAgenda();
 }
-
 
 function mostrarAgenda() {
     const menuContainer = document.getElementById("menuContainer");
     menuContainer.innerHTML = '';
+    const loadingMessage = document.createElement("div");
+    loadingMessage.innerText = "Cargando días y horarios disponibles...";
+    menuContainer.appendChild(loadingMessage);
 
+    const loader = document.createElement("div");
+    loader.classList.add("loader");
+    menuContainer.appendChild(loader);
 
-    arrayClasesDisponibles.forEach(horario => {
-        const button = document.createElement("button");
-        button.innerText = `Agendar clase el ${horario}`;
-        button.onclick = () => agendarClase(horario);
-        menuContainer.appendChild(button);
-    });
+    setTimeout(() => {
+        loadingMessage.remove();
+        loader.remove();
 
+        arrayClasesDisponibles.forEach(horario => {
+            const button = document.createElement("button");
+            button.innerText = `Agendar clase el ${horario}`;
+            button.onclick = () => agendarClase(horario);
+            menuContainer.appendChild(button);
+        });
 
-   
-    const buttonMenu = document.createElement("button");
-    buttonMenu.innerText = "Volver al Menú";
-    buttonMenu.onclick = mostrarMenu;
-    menuContainer.appendChild(buttonMenu);
-    buttonMenu.addEventListener('mouseover', () => {
-        buttonMenu.style.transform = 'scale(1.2)';
-        buttonMenu.style.backgroundColor = 'antiquewhite';
-    });
+        const buttonMenu = document.createElement("button");
+        buttonMenu.innerText = "Volver al Menú";
+        buttonMenu.onclick = mostrarMenu;
+        menuContainer.appendChild(buttonMenu);
+        buttonMenu.addEventListener('mouseover', () => {
+            buttonMenu.style.transform = 'scale(1.2)';
+            buttonMenu.style.backgroundColor = 'antiquewhite';
+        });
 
-
-    buttonMenu.addEventListener('mouseout', () => {
-        buttonMenu.style.transform = 'scale(1)';
-        buttonMenu.style.backgroundColor = '';
-    });
+        buttonMenu.addEventListener('mouseout', () => {
+            buttonMenu.style.transform = 'scale(1)';
+            buttonMenu.style.backgroundColor = '';
+        });
+    }, 1500);  
 }
-
 
 function agendarClase(horario) {
-    if (CarritoAbonosMensuales.length === 0) {
-        alert("Para agendar una nueva clase por favor comprá un abono mensual. Muchas gracias");
+    if (carritoAbonosMensuales.length === 0) {
+        Swal.fire({
+            title: "Para agendar una nueva clase por favor comprá un abono mensual. Muchas gracias",
+            icon: "warning",
+            
+        });
         return;
     }
-    if (ClasesAgendadas.includes(horario)) {
-        alert("Ya tienes una clase agendada para este horario.");
+    if (clasesAgendadas.includes(horario)) {
+        Swal.fire({
+            title: "Ya tienes una clase agendada para este horario.",
+            icon: "warning"
+          });
+        
     } else {
-        ClasesAgendadas.push(horario);
-        localStorage.setItem("ClasesAgendadas", JSON.stringify(ClasesAgendadas));
-        alert(`Clase agendada el ${horario}`);
+        clasesAgendadas.push(horario);
+        localStorage.setItem("clasesAgendadas", JSON.stringify(clasesAgendadas)); 
+        Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: `Clase agendada el ${horario}`,
+            showConfirmButton: false,
+            timer: 1500
+          });
+        
     }
 }
-
 
 function verCarritoAbonosMensuales() {
     const menuContainer = document.getElementById("menuContainer");
     menuContainer.innerHTML = '';
 
-
-    if (CarritoAbonosMensuales.length === 0) {
-        alert("No tienes abonos comprados.");
+    if (carritoAbonosMensuales.length === 0) {
+        Swal.fire({
+            title: "No tienes abonos comprados.",
+            icon: "warning"
+        });
         mostrarMenu();
         return;
     }
 
 
-    CarritoAbonosMensuales.forEach((abono) => {
+    carritoAbonosMensuales.forEach((abono) => {
         const button = document.createElement("button");
         button.innerText = `${abono.nombre} ($${abono.precio})`;
         menuContainer.appendChild(button);
     });
 
-
-   
     const buttonMenu = document.createElement("button");
     buttonMenu.innerText = "Volver al Menú";
     buttonMenu.onclick = mostrarMenu;
@@ -174,126 +191,180 @@ function verCarritoAbonosMensuales() {
         buttonMenu.style.backgroundColor = 'antiquewhite';
     });
 
-
     buttonMenu.addEventListener('mouseout', () => {
         buttonMenu.style.transform = 'scale(1)';
         buttonMenu.style.backgroundColor = '';
     });
 }
-
 
 function verClasesAgendadas() {
     const menuContainer = document.getElementById("menuContainer");
     menuContainer.innerHTML = '';
 
+    const loadingMessage = document.createElement("div");
+    loadingMessage.innerText = "Cargando clases agendadas...";
+    menuContainer.appendChild(loadingMessage);
 
-    if (ClasesAgendadas.length === 0) {
-        alert("No tienes clases agendadas.");
-        mostrarMenu();
-        return;
-    }
+    const loader = document.createElement("div");
+    loader.classList.add("loader");
+    menuContainer.appendChild(loader);
 
+    setTimeout(() => {
+        loadingMessage.remove();
+        loader.remove();
 
-    ClasesAgendadas.forEach((clase, index) => {
-        const button = document.createElement("button");
-        button.innerText = `Clase agendada: ${clase}`;
-        button.onclick = () => cancelarClase(index);
-        menuContainer.appendChild(button);
-    });
+        if (clasesAgendadas.length === 0) {
+            
+            Swal.fire({
+                title: "No tienes clases agendadas.",
+                text: "¿Quieres agendar una nueva clase?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Ir a agendar',
+                cancelButtonText: 'Volver al menú',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    mostrarAgenda();
+                } else {
+                   
+                    mostrarMenu();
+                }
+            });
+            return; 
+        }
+        clasesAgendadas.forEach((clase, index) => {
+            const button = document.createElement("button");
+            button.innerText = `Clase agendada: ${clase}`;
+            button.onclick = () => cancelarClase(index);
+            menuContainer.appendChild(button);
+        });
 
+        const buttonMenu = document.createElement("button");
+        buttonMenu.innerText = "Volver al Menú";
+        buttonMenu.onclick = mostrarMenu;
+        menuContainer.appendChild(buttonMenu);
+        buttonMenu.addEventListener('mouseover', () => {
+            buttonMenu.style.transform = 'scale(1.2)';
+            buttonMenu.style.backgroundColor = 'antiquewhite';
+        });
 
-   
-    const buttonMenu = document.createElement("button");
-    buttonMenu.innerText = "Volver al Menú";
-    buttonMenu.onclick = mostrarMenu;
-    menuContainer.appendChild(buttonMenu);
-    buttonMenu.addEventListener('mouseover', () => {
-        buttonMenu.style.transform = 'scale(1.2)';
-        buttonMenu.style.backgroundColor = 'antiquewhite';
-    });
-
-
-    buttonMenu.addEventListener('mouseout', () => {
-        buttonMenu.style.transform = 'scale(1)';
-        buttonMenu.style.backgroundColor = '';
-    });
+        buttonMenu.addEventListener('mouseout', () => {
+            buttonMenu.style.transform = 'scale(1)';
+            buttonMenu.style.backgroundColor = '';
+        });
+    }, 1500);  
 }
-
 
 function cancelarClase(index) {
-    ClasesAgendadas.splice(index, 1);
-    localStorage.setItem("ClasesAgendadas", JSON.stringify(ClasesAgendadas));
-    alert("Clase cancelada.");
-    verClasesAgendadas();
+    clasesAgendadas.splice(index, 1);
+    localStorage.setItem("clasesAgendadas", JSON.stringify(clasesAgendadas));  
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-danger"
+        },
+        buttonsStyling: false
+      });
+      swalWithBootstrapButtons.fire({
+        title: "¿Confirmas la cancelación de la clase?",
+        text: "La clase cancelada queda a disponibilidad de otros alumnos, no aseguramos la disponibilidad",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Si, confirmo",
+        cancelButtonText: "No! no quiero cancelar",
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          swalWithBootstrapButtons.fire({
+            title: "Cancelada!",
+            text: "Tu clase fue cancelada",
+            icon: "success",
+
+        }).then(() => {
+            verClasesAgendadas();
+          });
+        } else if (
+          
+          result.dismiss === Swal.DismissReason.cancel
+        ) {
+          swalWithBootstrapButtons.fire({
+            title: "Tu clase sigue agendada!",
+            icon: "error"
+          });
+        }
+      });
+    
+   
 }
 
-
 function confirmarCompra() {
-    if (CarritoAbonosMensuales.length === 0) {
-        alert("No tienes abonos para comprar.");
+    if (carritoAbonosMensuales.length === 0) {
+        Swal.fire("Para confirmar una compra, por favor agrega un abono al carrito.");
         return;
     }
 
 
-    let mensaje = "¿Confirmar la compra de los siguientes abonos?\n";
-    CarritoAbonosMensuales.forEach(abono => {
-        mensaje += `${abono.nombre} ($${abono.precio})\n`;
+    Swal.fire({
+        title: "¿Confirmas la compra?",
+        text: "Si, confirmo la compra del abono seleccionado",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Confirmar",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            mostrarPago();
+        }
     });
-    mensaje += "Recuerda que puedes agendar o modificar tus clases desde la plataforma.";
-
-
-    if (confirm(mensaje)) {
-        mostrarPago(); 
-    }
 }
-
-
 function mostrarPago() {
     const menuContainer = document.getElementById("menuContainer");
-    menuContainer.innerHTML = ''; 
-
+    menuContainer.innerHTML = '';
 
     let detalles = "Abonos Comprados:\n";
-    CarritoAbonosMensuales.forEach(abono => {
+    carritoAbonosMensuales.forEach(abono => {
         detalles += `${abono.nombre} ($${abono.precio})\n`;
     });
 
-
-    
     const detallesPago = document.createElement("div");
     detallesPago.innerText = detalles;
-
 
     const finalizarPago = document.createElement("button");
     finalizarPago.innerText = "Finalizar Pago";
     finalizarPago.style.cursor = "pointer"; 
     finalizarPago.onclick = function() {
-        alert("Pago completado. ¡Gracias!");
-        CarritoAbonosMensuales = []; 
-        localStorage.removeItem("CarritoAbonosMensuales"); 
+        Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: "Pago completado. ¡Gracias!",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        
+        carritoAbonosMensuales = []; 
+        localStorage.removeItem("carritoAbonosMensuales"); 
         mostrarMenu(); 
     };
-
 
     const volverAlMenu = document.createElement("button");
     volverAlMenu.innerText = "Volver al Menú";
     volverAlMenu.style.cursor = "pointer"; 
     volverAlMenu.onclick = mostrarMenu;
 
-
     volverAlMenu.addEventListener('mouseover', () => {
         volverAlMenu.style.transform = 'scale(1.2)';
         volverAlMenu.style.backgroundColor = 'antiquewhite';
     });
 
-
     volverAlMenu.addEventListener('mouseout', () => {
         volverAlMenu.style.transform = 'scale(1)';
         volverAlMenu.style.backgroundColor = '';
     });
-   
+
     menuContainer.appendChild(detallesPago);
     menuContainer.appendChild(finalizarPago);
     menuContainer.appendChild(volverAlMenu);
 }
+
 document.addEventListener("DOMContentLoaded", mostrarMenu);
